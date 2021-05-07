@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   IOS_DEPLOYMENT_TARGET = '6.0' unless defined? IOS_DEPLOYMENT_TARGET
   s.name         = "KSCrash"
-  s.version      = "1.15.21"
+  s.version      = "1.15.24"
   s.summary      = "The Ultimate iOS Crash Reporter"
   s.homepage     = "https://github.com/kstenerud/KSCrash"
   s.license     = { :type => 'KSCrash license agreement', :file => 'LICENSE' }
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
     recording.compiler_flags = '-fno-optimize-sibling-calls'
     recording.source_files   = 'Source/KSCrash/Recording/**/*.{h,m,mm,c,cpp}',
                                'Source/KSCrash/llvm/**/*.{h,m,mm,c,cpp}',
-                               'Source/KSCrash/swift/**/*.{h,m,mm,c,cpp}',
+                               'Source/KSCrash/swift/**/*.{h,m,mm,c,cpp,def}',
                                'Source/KSCrash/Reporting/Filters/KSCrashReportFilter.h'
     recording.public_header_files = 'Source/KSCrash/Recording/KSCrash.h',
                                     'Source/KSCrash/Recording/KSCrashC.h',

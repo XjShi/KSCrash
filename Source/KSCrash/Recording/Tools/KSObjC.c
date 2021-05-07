@@ -49,6 +49,8 @@ typedef unsigned int NSUInteger;
 #include <inttypes.h>
 #include <objc/runtime.h>
 
+#include "TargetConditionals.h"
+
 
 #define kMaxNameLength 128
 
@@ -195,9 +197,12 @@ static const struct class_t* decodeIsaPointer(const void* const isaPointer)
     if(isa & ISA_TAG_MASK)
     {
 #if defined(__arm64__)
+#if TARGET_OS_IOS
         if (floor(kCFCoreFoundationVersionNumber) <= kCFCoreFoundationVersionNumber_iOS_8_x_Max) {
             return (const struct class_t*)(isa & ISA_MASK_OLD);
         }
+#endif
+        
         return (const struct class_t*)(isa & ISA_MASK);
 #else
         return (const struct class_t*)(isa & ISA_MASK);
@@ -540,6 +545,19 @@ static bool isValidIvarType(const char* const type)
     return false;
 }
 
+static bool containsValidExtData(class_rw_t *rw)
+{
+    uintptr_t ext_ptr = rw->ro_or_rw_ext;
+    if (ext_ptr & 0x1UL) {
+        ext_ptr &= ~0x1UL;
+        struct class_rw_ext_t *rw_ext = (struct class_rw_ext_t *)ext_ptr;
+        if (!ksmem_isMemoryReadable(rw_ext, sizeof(*rw_ext))) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static bool containsValidROData(const void* const classPtr)
 {
     const struct class_t* const class = classPtr;
@@ -550,6 +568,9 @@ static bool containsValidROData(const void* const classPtr)
     class_rw_t* rw = getClassRW(class);
     if(!ksmem_isMemoryReadable(rw, sizeof(*rw)))
     {
+        return false;
+    }
+    if (!containsValidExtData(rw)) {
         return false;
     }
     const class_ro_t* ro = getClassRO(class);
